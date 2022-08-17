@@ -1,9 +1,7 @@
 // https://api.dictionaryapi.dev/api/v2/entries/en/hello
 
-
 // Import stylesheets
 //import './style.css';
-
 
 const dictionaryURL: string = "https://api.dictionaryapi.dev/api/v2/entries/en/";
 const form: HTMLFormElement = document.querySelector('#defineform');
@@ -15,20 +13,20 @@ form.onsubmit = () => {
   const text = formData.get('defineword') as string;
   console.log(text);
 
-  let parsedResponse = getDefinition(text);
   wordheader!.innerHTML = text;
-  //definitionlead!.innerHTML = getPrimaryDefinition(parsedResponse);
-
+  
   definitionlead!.innerHTML = '';
-    fetchWordDefinitions(text)
-        .then(defintions => {
-            defintions.forEach(d => {
-              definitionlead!.innerHTML += `<p>${d}</p>`;
-            });
-        })
-        .catch(_ => {
-          definitionlead!.innerHTML += `<p class="lead">Error: Unable to find any defintions for ${text}.</p>`;
-        });
+  getDefinition(text).then(result => {
+    result.forEach(subresult => {
+      for (var i = 0; i < subresult.meanings.length; i++) {
+        definitionlead!.innerHTML += `<p>${subresult.meanings[i].partOfSpeech}</p>`;
+        for (var j = 0; j < subresult.meanings[i].definitions.length; j++) {
+          definitionlead!.innerHTML += `<li>${subresult.meanings[i].definitions[j].definition}</li>`;
+        }
+        definitionlead!.innerHTML += `<br>`;
+      }
+    })
+  })
 
   return false; // prevent reload
 };
@@ -50,8 +48,6 @@ async function getDefinition(text: string) {
     console.log('result is: ', JSON.stringify(result, null, 4));
 
     const parsed = JSON.parse(JSON.stringify(result));
-    console.log(parsed[0].meanings.flatMap(m => m.definitions));
-    // console.log(parsed[0].meanings.flatMap(m => m.definitions).flatMap(d => d.definition));
 
     return parsed;
   } catch (error) {
@@ -64,16 +60,3 @@ async function getDefinition(text: string) {
     }
   }
 }
-
-async function getPrimaryDefinition(allDefinitions) {
-  return allDefinitions[0].meanings.flatMap(m => m.definitions).flatMap(d => d.definition);
-}
-
-// kris' code
-const fetchWordDefinitions = async (text: string) => {
-  const response = await fetch(dictionaryURL + text);
-  const json = await response.json();
-  return json[0].meanings
-      .flatMap(m => m.definitions)
-      .flatMap(d => d.definition);
-};

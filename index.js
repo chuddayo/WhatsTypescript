@@ -35,7 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 // Import stylesheets
 //import './style.css';
 var dictionaryURL = "https://api.dictionaryapi.dev/api/v2/entries/en/";
@@ -46,17 +45,18 @@ form.onsubmit = function () {
     var formData = new FormData(form);
     var text = formData.get('defineword');
     console.log(text);
-    var parsedResponse = getDefinition(text);
     wordheader.innerHTML = text;
-    //definitionlead!.innerHTML = getPrimaryDefinition(parsedResponse);
     definitionlead.innerHTML = '';
-    fetchWordDefinitions(text)
-        .then(function (defintions) {
-        defintions.forEach(function (d) {
-            definitionlead.innerHTML += "<p>".concat(d, "</p>");
+    getDefinition(text).then(function (result) {
+        result.forEach(function (subresult) {
+            for (var i = 0; i < subresult.meanings.length; i++) {
+                definitionlead.innerHTML += "<p>".concat(subresult.meanings[i].partOfSpeech, "</p>");
+                for (var j = 0; j < subresult.meanings[i].definitions.length; j++) {
+                    definitionlead.innerHTML += "<li>".concat(subresult.meanings[i].definitions[j].definition, "</li>");
+                }
+                definitionlead.innerHTML += "<br>";
+            }
         });
-    })["catch"](function (_) {
-        definitionlead.innerHTML += "<p class=\"lead\">Error: Unable to find any defintions for ".concat(text, ".</p>");
     });
     return false; // prevent reload
 };
@@ -83,8 +83,6 @@ function getDefinition(text) {
                     result = _a.sent();
                     console.log('result is: ', JSON.stringify(result, null, 4));
                     parsed = JSON.parse(JSON.stringify(result));
-                    console.log(parsed[0].meanings.flatMap(function (m) { return m.definitions; }));
-                    // console.log(parsed[0].meanings.flatMap(m => m.definitions).flatMap(d => d.definition));
                     return [2 /*return*/, parsed];
                 case 3:
                     error_1 = _a.sent();
@@ -102,27 +100,3 @@ function getDefinition(text) {
         });
     });
 }
-function getPrimaryDefinition(allDefinitions) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, allDefinitions[0].meanings.flatMap(function (m) { return m.definitions; }).flatMap(function (d) { return d.definition; })];
-        });
-    });
-}
-// kris' code
-var fetchWordDefinitions = function (text) { return __awaiter(_this, void 0, void 0, function () {
-    var response, json;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, fetch(dictionaryURL + text)];
-            case 1:
-                response = _a.sent();
-                return [4 /*yield*/, response.json()];
-            case 2:
-                json = _a.sent();
-                return [2 /*return*/, json[0].meanings
-                        .flatMap(function (m) { return m.definitions; })
-                        .flatMap(function (d) { return d.definition; })];
-        }
-    });
-}); };
