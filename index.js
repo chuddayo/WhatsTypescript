@@ -45,9 +45,10 @@ form.onsubmit = function () {
     var formData = new FormData(form);
     var text = formData.get('defineword');
     console.log(text);
-    wordheader.innerHTML = text;
+    // wordheader!.innerHTML = text;
     definitionlead.innerHTML = '';
     getDefinition(text).then(function (result) {
+        wordheader.innerHTML = result[0].word + ' • ' + result[0].phonetic;
         result.forEach(function (subresult) {
             for (var i = 0; i < subresult.meanings.length; i++) {
                 definitionlead.innerHTML += "<p>".concat(subresult.meanings[i].partOfSpeech, "</p>");

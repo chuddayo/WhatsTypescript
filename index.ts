@@ -13,10 +13,11 @@ form.onsubmit = () => {
   const text = formData.get('defineword') as string;
   console.log(text);
 
-  wordheader!.innerHTML = text;
-  
+  // wordheader!.innerHTML = text;
+
   definitionlead!.innerHTML = '';
   getDefinition(text).then(result => {
+    wordheader!.innerHTML = result[0].word + ' • ' + result[0].phonetic;
     result.forEach(subresult => {
       for (var i = 0; i < subresult.meanings.length; i++) {
         definitionlead!.innerHTML += `<p>${subresult.meanings[i].partOfSpeech}</p>`;
